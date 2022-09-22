@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="https://getfirebug.com/firebug-lite-debug.js"></script> <meta name="description" content="CS4406 Computer Graphics - Assignment #2" />
+    <meta charset="utf-8" />
+    <title>Programming Assignment Unit 2</title>
+    <style id="jsbin-css"> </style>
+    CS 4406 - Computer Graphics - Week 2 Programming Assignment
+</head>
+<body>
+<div id="container"> </div>
+</body>
+<script src="js/three.js"></script>
+<script>
+    //create WebGL scene, aspect, camera, renderer
+    var scene = new THREE.Scene();
+    var aspect = window.innerWidth / window.innerHeight;
+    var camera = new THREE.PerspectiveCamera( 75, aspect, 0.1, 1000 );//VIEW_ANGLE,ASPECT,NEAR,FAR
+    var renderer = new THREE.WebGLRenderer();
+    // start the renderer
+
+    with mesh
+        renderer.setSize( window.innerWidth, window.innerHeight ); document.body.appendChild( renderer.domElement );
+    //create 5 vertices object drawing each line var penta = new THREE.Shape(); penta.moveTo(0, 1);
+    penta.lineTo(1, 0);
+    penta.lineTo(0.5, -1); penta.lineTo(-0.5, -1); penta.lineTo(-1, 0);
+    //create free shape geometry object
+    var geometry = new THREE.ShapeGeometry(penta);
+    var material = new THREE.MeshStandardMaterial(); //create mesh material
+    var star = new THREE.Mesh( geometry, material ); //create star object from penta
+    scene.add( star ); // add star to the scene camera.position.z = 3; //set camera position
+
+    //create the light with color, position it, add to the scene
+    const directionalLight = new THREE.DirectionalLight( 0x0000FF ); directionalLight.position.y = 0;
+    directionalLight.position.z = 1;
+    scene.add( directionalLight );
+    //create object rotation and animate function var render = function () { requestAnimationFrame( render ); star.rotation.x += 0.01;
+    star.rotation.y += 0.01; renderer.render( scene, camera );};
+    render();
+    //render the scene function render() {
+    requestAnimationFrame( render ); controls.update(); renderer.render( scene, camera );
+    };
+
+</script> </html>

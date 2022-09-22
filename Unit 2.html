@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<p>
+    For Programming Assignment Unit 2, you must utilize WebGL's comparable functionality to create a polygon composed of 5 vertices.
+</p>
+<p>
+    You will need to modify the Unit 2 Assignment Example Code to create a polygon that must:
+</p>
+<ul>
+    <li>Have a red or blue surface</li>
+    <li>Spin slowly on its axes</li>
+</ul>
+
+
+
+
+<script src="js/three.js"></script>
+<script>
+
+    // Creating the scene
+    const scene = new THREE.Scene();
+
+    // Creating the camera
+    const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        10000
+    );
+
+    // Creating the renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Camera Position
+    camera.position.z = 5;
+
+    const geometry = new THREE.BoxGeometry( 1, 2, 3);
+    const material = new THREE.MeshBasicMaterial( { color: 0x00ff00});
+    const cube = new THREE.Mesh(geometry, material);
+
+    scene.add(cube);
+
+    camera.position.z = 5;
+
+    function animate() {
+        requestAnimationFrame( animate );
+
+        cube.rotation.x += 0.01;
+        cube.rotation.y += 0.01;
+
+        renderer.render(scene, camera);
+    }
+
+</script>
+
+</body>
+</html>
