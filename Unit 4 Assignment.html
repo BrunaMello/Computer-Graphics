@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unit 4 - Assignment</title>
+    <style> body {
+        margin: 0;
+    } </style>
+</head>
+<body>
+<script src="js/three.js"></script>
+<script>
+
+    // set some scene attributes
+    var WIDTH = 720, HEIGHT = 480;
+    // set some camera attributes
+    var VIEW_ANGLE = 45, ASPECT = WIDTH / HEIGHT, NEAR = 0.1, FAR = 1000;
+
+    //creating the scene
+    const scene = new THREE.Scene();
+
+    //creating camera
+    const camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+    camera.position.z = 10;
+
+
+    //creating renderer
+    const renderer = new THREE.WebGLRenderer({antialias: true, alpha: false});
+    renderer.setSize(WIDTH, HEIGHT);
+    renderer.shadowMap.enabled = true;
+    // renderer.setClearColor(0xffffff);
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    document.body.appendChild(renderer.domElement);
+
+    // //creating ambient light
+    // const ambientLight = new THREE.AmbientLight(0x404040, 1);
+    // ambientLight.position.set(-1, 1, 1);
+    // scene.add( ambientLight );
+
+    //creating a spotlight for the scene
+    const spotlight = new THREE.SpotLight(0xffffff);
+    spotlight.position.set(0, 45, 50);
+    spotlight.castShadow = true;
+    spotlight.shadow.mapSize.width = WIDTH;
+    spotlight.shadow.mapSize.height = HEIGHT;
+    spotlight.shadow.camera.near = NEAR;
+    spotlight.shadow.camera.far = FAR;
+    scene.add(spotlight);
+
+    // //spotlight helper to see what direction the light is come from
+    // const spotlighthelper = new THREE.SpotLightHelper(spotlight);
+    // scene.add(spotlighthelper);
+
+
+    //creating cubes
+    const geometry = new THREE.TorusGeometry(1, 0.4, 16, 100);
+
+    //material for texture cube1
+    const texture = new THREE.TextureLoader();
+    const textureCube = new THREE.MeshLambertMaterial({ map: texture.load('https://upload.wikimedia.org/wikipedia/commons/9/94/Blue_wool_texture.png'), wireframe: false, side: THREE.DoubleSide });
+    const cube1 = new THREE.Mesh(geometry, textureCube);
+
+    cube1.position.y = 2;
+    cube1.position.x = -3;
+
+    scene.add(cube1);
+
+    
+
+    //material for transparency cube2
+    const transparentCube = new THREE.MeshLambertMaterial({color: "#0ab86b", transparent: true, opacity: 0.30, alphaTest:0.05, depthTest: true, depthWrite: true, side: THREE.DoubleSide});
+    const cube2 = new THREE.Mesh(geometry, transparentCube);
+
+    // //basic cube position
+    cube2.position.y = 2;
+    cube2.position.x = 3;
+
+
+    scene.add(cube2);
+
+    //material for basic cube3a
+    const basicCube = new THREE.MeshLambertMaterial({color: "#9e58c7", wireframe: false, side: THREE.DoubleSide});
+    const cube3 = new THREE.Mesh(geometry, basicCube);
+
+    // //basic cube position
+    cube3.position.y = -2;
+    cube3.position.x = -3;
+
+
+    scene.add(cube3);
+
+    //material for basic cube4
+    const reflectCube = new THREE.MeshLambertMaterial({color: "#f02b79", wireframe: false, side: THREE.DoubleSide});
+    const cube4 = new THREE.Mesh(geometry, reflectCube);
+
+    // //basic cube position
+    cube4.position.y = -2;
+    cube4.position.x = 3;
+
+
+    //creating direct light for basic cube3
+    const directLight = new THREE.PointLight("#f4ebcc", 1.5, 13);
+    directLight.position.set(6, -4 , 10);
+    scene.add(directLight);
+    directLight.target = cube4;
+
+
+    // const spherelight = 20;
+    // const pointlighthelper = new THREE.PointLightHelper( directLight, spherelight);
+    // scene.add(pointlighthelper);
+
+
+
+    scene.add(cube4);
+
+    
+
+
+
+    function animate() {
+        requestAnimationFrame(animate);
+
+        cube1.rotation.y -= 0.01;
+        cube2.rotation.y += 0.01;
+        cube3.rotation.y -= 0.01;
+        cube4.rotation.y += 0.01;
+
+
+        render();
+
+    }
+
+    function render() {
+        renderer.render(scene, camera);
+    }
+
+    animate();
+
+
+</script>
+</body>
+</html>
