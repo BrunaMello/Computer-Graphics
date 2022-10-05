@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="text/javascript" src="https://getfirebug.com/firebug-lite-debug.js"></script>
+  <meta name="description" content="CS4406 Computer Graphics - Exercise #1" />
+  <meta charset="utf-8" />
+  <title>Sample Three.js</title>
+  <style>
+    #container {
+      background: #000000;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+  <meta charset=utf-8 />
+  <title>CS4406 Computer Graphics - Exercise #1</title>
+
+  <style id="jsbin-css">
+
+  </style>
+</head>
+<body>
+<div id="container">
+</div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+<script src="http://uopeopleweb.com/js/dat.gui.min.js"></script>
+<script src="https://threejs.org/build/three.js"></script>
+<script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/controls/OrbitControls.js"></script>
+<script src="http://uopeopleweb.com/js/math.js"></script>
+<script src="http://uopeopleweb.com/js/Detector.js"></script>
+<script type="text/javascript">
+
+
+  // set the scene size
+  var WIDTH = 500, HEIGHT = 500;
+
+  // set some camera attributes
+  var VIEW_ANGLE = 36, ASPECT = WIDTH / HEIGHT, NEAR = 1, FAR = 500;
+
+  // get the DOM element to attach to
+  var $container = $('#container');
+
+  // create a WebGL renderer, camera, and a scene
+
+  var renderer = new THREE.WebGLRenderer({ alpha: true});
+  var scene = new THREE.Scene();
+  var clock = new THREE.Clock();
+  var camera = new THREE.PerspectiveCamera(VIEW_ANGLE,ASPECT,NEAR,FAR);
+  // the camera starts at 0,0,0 so pull it back
+  camera.position.set(0, 5, 10);
+  // add the camera to the scene
+  scene.add(camera)
+
+  // set up the camera controls.  Please keep in mind that what this does is move the entire scene around.
+  // because the entire scene is moving the position of the camera and lights in relation to objects within
+  // the scene doesn't change so the lighting on the surface of the object(s) will not change either
+  var cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
+  cameraControls.addEventListener( 'mousemove', renderer );
+  // cameraControls.autoRotate = true;
+
+  // start the renderer
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.setSize(WIDTH, HEIGHT);
+
+
+  // attach the render-supplied DOM element
+  $container.append(renderer.domElement);
+
+  // ----------------------------------------------------------------------------------------
+  //  END OF THE STANDARD CODE FOR THE ASSIGNMENT
+  //  Following this is where you must place your own custom code to complete the assignment
+  // ----------------------------------------------------------------------------------------
+
+
+
+
+
+  //creating ambient light
+  const ambientLight = new THREE.AmbientLight( 0x505050 );
+  scene.add(ambientLight);
+
+  //creating spotlight
+  const spotLight = new THREE.SpotLight( 0xffffff );
+  spotLight.angle = Math.PI / 5;
+  spotLight.penumbra = 0.2;
+  spotLight.position.set( .5, 3, 0 );
+  spotLight.castShadow = true;
+  spotLight.shadow.camera.near = 3;
+  spotLight.shadow.camera.far = 10;
+  spotLight.shadow.mapSize.width = 1024;
+  spotLight.shadow.mapSize.height = 1024;
+  scene.add( spotLight );
+
+  //creating direction light
+  const dirLight = new THREE.DirectionalLight( 0xffffaa );
+  dirLight.position.set( -1, 1, 1 );
+  dirLight.castShadow = true;
+  dirLight.shadow.camera.near = 1;
+  dirLight.shadow.camera.far = 10;
+
+  dirLight.shadow.camera.right = 1.5;
+  dirLight.shadow.camera.left = - 1.5;
+  dirLight.shadow.camera.top	= 1.5;
+  dirLight.shadow.camera.bottom = - 1.5;
+
+  dirLight.shadow.mapSize.width = 1024;
+  dirLight.shadow.mapSize.height = 1024;
+  scene.add( dirLight );
+  //
+  //creating the plane
+  const planeGeometry = new THREE.PlaneGeometry( 19, 19, 1, 100);
+  const planeMaterial = new THREE.MeshPhongMaterial( { color: '#2c5b4b', shininess: 150 } );
+  const plane = new THREE.Mesh( planeGeometry, planeMaterial);
+  plane.rotation.x = - Math.PI / 2;
+  plane.receiveShadow = true;
+  plane.position.y = - 2;
+  plane.cameraControls = false;
+  scene.add(plane);
+
+  //creating the atom
+  const atom = new THREE.Group();
+
+  //creating nucleus
+  const nucleusGeometry = new THREE.SphereGeometry( 0.5, 32, 32 );
+  const nucleusMaterial = new THREE.MeshLambertMaterial( { color: '#800000', wireframe: false, side: THREE.DoubleSide });
+  const nucleus = new THREE.Mesh(nucleusGeometry, nucleusMaterial);
+  nucleus.castShadow = true;
+  nucleus.receiveShadow = false;
+  atom.add(nucleus);
+
+  //creating electrons
+
+  //material for cylinders
+  const cylinderMaterial = new THREE.MeshLambertMaterial( { color: '#ffffff', wireframe: false, side: THREE.DoubleSide});
+
+  //electron 1
+  const electronGeometry = new THREE.SphereGeometry( 0.3, 32, 32 );
+  const electronMaterial = new THREE.MeshLambertMaterial( { color: '#3300cc', wireframe: false, side: THREE.DoubleSide });
+  const electron1 = new THREE.Mesh(electronGeometry, electronMaterial);
+  electron1.position.x = 1.0;
+  electron1.position.y = 1.0;
+  electron1.position.z = 1.0;
+  electron1.castShadow = true;
+  electron1.receiveShadow = false;
+  atom.add(electron1);
+
+  //cylinder for electron 1
+  const line1 = new THREE.LineCurve(new THREE.Vector3(0,0,0), new THREE.Vector3(1,1,1));
+  const cylinder1Geometry = new THREE.TubeGeometry(line1, 32, 0.1, 8, false);
+  const edge1 = new THREE.Mesh(cylinder1Geometry, cylinderMaterial);
+  atom.add(edge1);
+
+  //electron 2
+  const electron2 = new THREE.Mesh(electronGeometry, electronMaterial);
+  electron2.position.x = -1;
+  electron2.position.y = -1;
+  electron2.position.z = 1;
+  electron2.castShadow = true;
+  electron2.receiveShadow = false;
+  atom.add(electron2);
+
+  //cylinder for electron 2
+  const line2 = new THREE.LineCurve(new THREE.Vector3(0,0,0), new THREE.Vector3( -1, -1, 1));
+  const cylinder2Geometry = new THREE.TubeGeometry(line2, 32, 0.1, 8, false);
+  const edge2 = new THREE.Mesh(cylinder2Geometry, cylinderMaterial);
+  atom.add(edge2);
+
+  //electron 3
+  const electron3 = new THREE.Mesh(electronGeometry, electronMaterial);
+  electron3.position.x = 1;
+  electron3.position.y = -1;
+  electron3.position.z = -1;
+  electron3.castShadow = true;
+  electron3.receiveShadow = false;
+  atom.add(electron3);
+
+  //cylinder for electron 3
+  const line3 = new THREE.LineCurve(new THREE.Vector3(0,0,0), new THREE.Vector3(1, -1, -1));
+  const cylinder3Geometry = new THREE.TubeGeometry(line3, 32, 0.1, 8, false);
+  const edge3 = new THREE.Mesh(cylinder3Geometry, cylinderMaterial);
+  atom.add(edge3);
+
+  //electron 4
+  const electron4 = new THREE.Mesh(electronGeometry, electronMaterial);
+  electron4.position.x = -1;
+  electron4.position.y = 1;
+  electron4.position.z = -1;
+  electron4.castShadow = true;
+  electron4.receiveShadow = false;
+  atom.add(electron4);
+
+  //cylinder for electron 4
+  const line4 = new THREE.LineCurve(new THREE.Vector3(0,0,0), new THREE.Vector3(-1, 1, -1));
+  const cylinder4Geometry = new THREE.TubeGeometry(line4, 32, 0.1, 8, false);
+  const edge4 = new THREE.Mesh(cylinder4Geometry, cylinderMaterial);
+  atom.add(edge4);
+
+
+
+  scene.add(atom);
+
+
+  // ----------------------------------------------------------------------------------------
+  // END OF YOUR CUSTOM CODE FOR THE ASSIGNMENT
+  // The rendering functions that follow are standard and can be used for this assignment.
+  // You are welcome to customize them or create your own if you desire, however, you can
+  // simply use the code provided.
+
+
+  // Standard functions for rendering the scene.  Notice how we have the animate function
+  // which submits a call to requestAnimationFrame to call animate.   This creates a loop
+  // that will render the scene again whenever something within the scene changes.
+  function animate() {
+    requestAnimationFrame(animate);
+
+    render();
+  }
+
+  function render() {
+    cameraControls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+</script>
+</html>
