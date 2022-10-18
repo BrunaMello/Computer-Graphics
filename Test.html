@@ -1,215 +1,135 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title>color</title>
-  <style>
-    #container {
-      width:100%;
-      height:100%;
-      background:#000000;
-    }
-  </style>
-</head>
-<body>
-<div id="container"></div>
-<script src="https://cdn.rawgit.com/mrdoob/three.js/r92/build/three.min.js"></script>
-<script src="https://cdn.rawgit.com/mrdoob/three.js/r92/examples/js/controls/OrbitControls.js"
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-<script src="js/three.js"></script>
-<script>
-  // create variables of the window width and height
-  var WIDTH =window.innerHeight, HEIGHT =window.innerHeight;
-  // create the scene
-  var scene =new THREE.Scene();
-  // set some camera attributes
-  //var VIEW_ANGLE = 45, ASPECT = WIDTH / HEIGHT, NEAR = 1, FAR = 1000;
-  // set the spec for the camera
-  var camera =new THREE.PerspectiveCamera(55 ,window.innerWidth/window.innerHeight , 1,1000
-  // set the z position of the camera to 90 so we can see
-  // what's going on
-  camera.position.z = 100;
-  // add the camera
-  scene.add(camera);
-  // attach the container to the div id container using JQuery
-  var view_container =$('#container');
-  // check for web compatibility WebGL or canvas
-  if (window.WebGLRenderingContext) {
-    var renderer =new THREE.WebGLRenderer();
-  }else {
-    var renderer =new THREE.CanvasRenderer();
-  }
-  // define the material for the torus knot and
-  // the sphere
-  var tmaterial =new THREE.MeshLambertMaterial({
-    color: 0x00ff00
-  });
-  var smaterial =new THREE.MeshPhongMaterial(
-          { color: 0x00ffff,side:
-            THREE.DoubleSide,
-            shading:THREE.SmoothShading,
-            blending:THREE.AdditiveBlending }
-  );
-  // set up the geometry for the torus and sphere
-  var tgeometry =new THREE.TorusKnotGeometry(3,2,17,8);
-  var sphere =new THREE.Mesh(new THREE.SphereGeometry(8,60,60), smaterial);
-  var torus_knot =new THREE.Mesh(tgeometry, tmaterial);
-  // set the starting postions of both objects
-  sphere.position.x = -10;
-  sphere.position.y = -10;
-  // I was playing with it to get them to start in different
-  // area and move independently
-  //sphere.position.z = 90;
-  // torus_knot.position.x = -8;
-  // torus_knot.position.y = -20;
-  // torus_knot.position.z = 90;
-  // add the knot and sphere to the scene
-  scene.add(torus_knot);
-  scene.add(sphere);
-  // add lighting
-  var pLight =new THREE.PointLight( 0xffffff,5,100 );
-  pLight.position.set( 50,50,50 );
-  scene.add( pLight );
-  // set up the camera controls and add a listener for the mouse move
-  var cameraControls =new THREE.OrbitControls(camera, renderer.domElement);
-  cameraControls.addEventListener( 'mousemove', renderer );
-  // set up the size for the renderer
-  renderer.setSize(WIDTH, HEIGHT);
-  // append the renderer to the div container
-  view_container.append(renderer.domElement);
-  // loop it
-  function animate() {
-    requestAnimationFrame(animate);
-    render();
-  }
-  // boolean variables for movement
-  var move_right =true;
-  var falling =true;
-  var move_near =false;
-  // move the objectse
-  function move_object() {
-    if(move_right) {
-// move the object to the right
-      torus_knot.position.x += .1;
-    }else {
-// move the object to the left
-      torus_knot.position.x -= .1;
-    }
-    if (falling) {
-// move the object down
-      torus_knot.position.y -= .1;
-    }else {
-// move the object up
-      torus_knot.position.y += .1;
-    }
-    if (move_near) {
-// move object closer
-      torus_knot.position.z -= .1;
-    }else {
-      torus_knot.position.z += .1;
-    }
-    if(move_right) {
-// move the object to the right
-      sphere.position.x += .1;
-    }else {
-// move the object to the left
-      sphere.position.x -= .1;
-    }
-    if (falling) {
-// move the object down
-      sphere.position.y -= .1;
-    }else {
-// move the object up
-      sphere.position.y += .1;
-    }
-    if (move_near) {
-// move object closer
-      sphere.position.z -= .1;
-    }else {
-      sphere.position.z += .1;
-    }
-  }
-  // detect the wall limits using the boolean variables
-  function detect_wall() {
-    if(torus_knot.position.x > 15) {
-      change_color_torus();
-      move_right =false;
-    }else if (torus_knot.position.x < -15) {
-      change_color_torus();
-      move_right =true;
-    }
-    if(sphere.position.x > 15) {
-      change_color_sphere();
-      move_right =false;
-    }else if (sphere.position.x < -15) {
-      change_color_sphere();
-      move_right =true;
-    }
-  }
-  function detect_floor() {
-    if (torus_knot.position.y < 0) {
-      change_color_torus();
-      falling =false;
-    }else if (torus_knot.position.y > 19) {
-      change_color_torus();
-      falling =true;
-    }
-  }
-  function detect_screen(){
-    if (torus_knot.position.z < 5) {
-      change_color_torus();
-      move_near =false;
-    }else if (torus_knot.position.z > 40) {
-      change_color_torus();
-      move_near =true;
-    }
-  }
-  function getRandomColor() {
-    var letters ='0123456789ABCDEF';
-    var color ='#';
-    for (var i= 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
-  // change the color of the torus
-  function change_color_torus() {
-    var new_material =new THREE.MeshLambertMaterial({
-              color:getRandomColor()
-            })
-    ;
-    torus_knot.material =new_material;
-  }
-  // change color of the sphere
-  function change_color_sphere() {
-    var new_material =new THREE.MeshPhongMaterial({
-      color:getRandomColor()
-    });
-    sphere.material =new_material;
-  }
-  // render the scenes
-  function render() {
-// call the functions to detect the edges
-    detect_wall();
-    detect_floor();
-    detect_screen();
-// I would need to separate this into two
-// function move_object_torus and move_object_sphere
-// for them to move independently
-    move_object();
-// rotate the torus knot and the sphere
-    torus_knot.rotateOnAxis(new THREE.Vector3(0,0,1), .04);
-    torus_knot.rotateOnAxis(new THREE.Vector3(0,1,0), .01);
-    sphere.rotateOnAxis(new THREE.Vector3(0,0,1), .02);
-    sphere.rotateOnAxis(new THREE.Vector3(0,1,0), .05);
-// update camera controls
-    cameraControls.update();
-// render scene and the camera
-    renderer.render(scene, camera);
-  }
-  // start the animation
-  animate();
-</script>
-</body>
-</html>
+//const for the hyperbolic use
+let a = 1.0;
+let b = 1.0;
+
+//function for computing z-position
+function f(u, v, p) {
+let x = u * 2 - 1;
+let y = v * 2 - 1;
+p.set(x,y, (x*x)/(a*a) - (y*y)/(b*b));
+}
+
+// values to produce the x and y domains
+let x_min = -1.0;
+let y_min = -1.0;
+let x_max = 1.0;
+let y_max = 1.0;
+
+// function to set vertex colors
+function getVertexColor(point) {
+return new THREE.Color(point.x*0.5+0.5, point.y*0.5+0.5, point.z*0.05+0.05);
+}
+
+function setVertexColor(geometry) {
+for (let i = 0; i < geometry.faces.length; i++) {
+let face = geometry.faces[i];
+face.vertexColors = [getVertexColor(geometry.vertices[face.a]), getVertexColor(geometry.vertices[face.b]), getVertexColor(geometry.vertices[face.c])];
+}
+}
+
+// creates a plane grid
+function createPlaneGrid(size, steps) {
+let group = new THREE.Group();
+let material = new THREE.LineBasicMaterial({color: 0x000000, transparent: true, opacity: 0.25});
+
+for (let i = 0; i <= steps; i += 1) {
+let f = (i / steps)-0.5;
+let geometry = new THREE.Geometry();
+geometry.vertices.push( new THREE.Vector3(f * size, - size * 0.5, 0), new THREE.Vector3(f * size, size * 0.5, 0));
+let line = new THREE.Line(geometry, material);
+group.add(line);
+}
+
+// y-direction
+for (let i = 0; i <= steps; i += 1) {
+let f = (i / steps)-0.5;
+let geometry = new THREE.Geometry();
+geometry.vertices.push( new THREE.Vector3(- size * 0.5, f * size, 0), new THREE.Vector3(size * 0.5, f * size, 0));
+let line = new THREE.Line(geometry, material);
+group.add(line);
+}
+return group;
+}
+
+// parametric group
+let myGeometry = new THREE.ParametricGeometry(f, 20, 20);
+setVertexColor(myGeometry);
+let myMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide, vertexColors: THREE.Vertex})
+
+//Create models and groups
+let myMesh = new THREE.Mesh(myGeometry, myMaterial);
+scene.add(myMesh);
+let myPlane = createPlaneGrid(4,12);
+scene.add(myPlane);
+
+let arrowCylinder = new THREE.CylinderGeometry(0.015, 0.015, 0.2, 32);
+let arrowCone = new THREE.ConeGeometry( 0.03, 0.1, 32);
+
+//Create an arrow model for use with axisHelper
+function axisArrow(color) {
+let group = new THREE.Group();
+let arrowMaterial = new
+THREE.MeshPhongMaterial({color:color, specular:0x222222, shininess:100})
+let cylinder = new THREE.Mesh(arrowCylinder, arrowMaterial);
+cylinder.position.set(0, 0.125, 0);
+group.add(cylinder);
+let cone = new THREE.Mesh(arrowCone, arrowMaterial);
+cone.position.set(0, 0.275, 0);
+group.add(cone);
+return group;
+}
+
+// Create a full axisHelper object, and return the group. Three arrows pointing in each direction, as well as an origin cube connecting them.
+function axisHelper() {
+let group = new THREE.Group();
+let xAxis = axisArrow(new THREE.Color(0.0,1.0,0.0)); //Green for x-axis
+let yAxis = axisArrow(new THREE.Color(1.0,0.0,0.0)); //Red for y-axis
+let zAxis = axisArrow(new THREE.Color(0.0,0.0,1.0)); //Blue for z-axis
+xAxis.rotateZ(-Math.PI*0.5);
+zAxis.rotateX(Math.PI*0.5); //rotate the arrows to match the axes.
+group.add(xAxis);
+group.add(yAxis);
+group.add(zAxis);
+
+let cubeGeometry = new THREE.BoxGeometry(0.05,0.05,0.05);
+let cubeMaterial = new
+THREE.MeshPhongMaterial({color:0x808080,specular:0x222222,shininess:100})
+let cube = new THREE.Mesh( cubeGeometry, cubeMaterial );
+group.add(cube);
+return group;
+}
+
+//Create an axis helper to follow the camera.
+let axisCamera = axisHelper();
+scene.add(axisCamera);
+//Create an axis helper to stay at the origin
+let axisOrigin = axisHelper();
+scene.add(axisOrigin);
+
+// ambient light
+let ambientLight = new THREE.AmbientLight(0x404040);
+scene.add(ambientLight);
+
+// directional light
+let sunLight = new THREE.DirectionalLight(0xffffff, 1.0);
+sunLight.position.set(100, 100, 100);
+sunLight.castShadow = true;
+sunLight.shadow.camera.left = -100;
+sunLight.shadow.camera.bottom = -100;
+sunLight.shadow.camera.right = 100;
+sunLight.shadow.camera.top = 100;
+sunLight.shadow.camera.far = 1000;
+scene.add(sunLight);
+
+
+
+
+//axis positions calculating
+let cam_x = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+let cam_y = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+let cam_z = new THREE.Vector3(0, 0, 1).applyQuaternion(camera.quaternion);
+axisCamera.scale.set(0.015, 0.015, 0.015);
+axisCamera.position.copy(camera.position);
+axisCamera.position.addScaledVector(cam_x, -0.1875);
+axisCamera.position.addScaledVector(cam_y, 0.1875);
+axisCamera.position.addScaledVector(cam_z, -0.06);

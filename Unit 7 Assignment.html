@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="text/javascript" src="https://getfirebug.com/firebug-lite-debug.js"></script>
+  <meta name="description" content="CS4406 Computer Graphics - Exercise #1" />
+  <meta charset="utf-8" />
+  <title>Sample Three.js</title>
+  <style>
+    #container {
+      background: #000000;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+  <meta charset=utf-8 />
+  <title>CS4406 Computer Graphics - Exercise #1</title>
+
+  <style id="jsbin-css">
+
+  </style>
+</head>
+<body>
+<div id="container">
+</div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+<script src="http://uopeopleweb.com/js/dat.gui.min.js"></script>
+<script src="https://threejs.org/build/three.js"></script>
+<script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/controls/OrbitControls.js"></script>
+<script src="http://uopeopleweb.com/js/math.js"></script>
+<script src="http://uopeopleweb.com/js/Detector.js"></script>
+<script type="text/javascript">
+
+
+  // set the scene size
+  let WIDTH = window.innerWidth, HEIGHT = window.innerHeight;
+  let planeSize = 1000;
+
+
+  // set some camera attributes
+  let VIEW_ANGLE = 45, ASPECT = WIDTH / HEIGHT, NEAR = 10, FAR = 4000;
+
+  // get the DOM element to attach to
+  let $container = $('#container');
+
+  // create a WebGL renderer, camera, and a scene
+
+  let renderer = new THREE.WebGLRenderer({ alpha: true});
+  let scene = new THREE.Scene();
+  let clock = new THREE.Clock();
+  let camera = new THREE.PerspectiveCamera(VIEW_ANGLE,ASPECT,NEAR,FAR);
+  // the camera starts at 0,0,0 so pull it back
+  camera.position.set(2 * planeSize, -2 * planeSize, 2 * planeSize);
+  // add the camera to the scene
+  scene.add(camera)
+
+  // set up the camera controls.  Please keep in mind that what this does is move the entire scene around.
+  // because the entire scene is moving the position of the camera and lights in relation to objects within
+  // the scene doesn't change so the lighting on the surface of the object(s) will not change either
+  let cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
+  // cameraControls.addEventListener( 'mousemove', renderer );
+  // cameraControls.autoRotate = true;
+
+  // start the renderer
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.setSize(WIDTH, HEIGHT);
+
+
+  // attach the render-supplied DOM element
+  $container.append(renderer.domElement);
+
+  // ----------------------------------------------------------------------------------------
+  //  END OF THE STANDARD CODE FOR THE ASSIGNMENT
+  //  Following this is where you must place your own custom code to complete the assignment
+  // ----------------------------------------------------------------------------------------
+
+
+  <!-- This is creating a spotlight that is white. -->
+  const sceneLight = new THREE.SpotLight(0xffffff);
+  sceneLight.position.set(2 * planeSize, 0, 0);
+  sceneLight.castShadow = true;
+  sceneLight.shadow.mapSize.width = 2048;
+  sceneLight.shadow.mapSize.height = 2048;
+  sceneLight.shadow.camera.far = 4000;
+  sceneLight.shadow.camera.near = 10;
+  scene.add(sceneLight);
+
+  <!-- This is creating an ambient light that is white. -->
+  const light = new THREE.AmbientLight(0xffffff);
+  scene.add(light);
+
+  <!-- This is creating the axes that are on the graph. -->
+  const axesHelper = new THREE.AxesHelper(planeSize);
+  scene.add(axesHelper);
+
+  <!-- This is creating the geometry for the cones. -->
+  let coneGeometry = new THREE.ConeGeometry(20, 40, 32);
+
+
+
+  <!-- This is creating the red cone that is on the x-axis. -->
+  const redConeMaterial = new THREE.MeshBasicMaterial({color: 0xff0000});
+  const X_cone = new THREE.Mesh(coneGeometry, redConeMaterial);
+  X_cone.position.set(planeSize, 0, 0);
+  X_cone.rotation.z = -Math.PI/2;
+  scene.add(X_cone);
+
+  <!-- This is creating the green cone that is on the y-axis. -->
+  const greenConeMaterial = new THREE.MeshBasicMaterial({color: 0x00ff00});
+  const Y_cone = new THREE.Mesh(coneGeometry, greenConeMaterial);
+  Y_cone.position.set(0, planeSize, 0);
+  scene.add(Y_cone);
+
+  <!-- This is creating the blue cone that is on the z-axis. -->
+  const blueConeMaterial = new THREE.MeshBasicMaterial({color: 0x0000ff});
+  const Z_cone = new THREE.Mesh(coneGeometry, blueConeMaterial);
+  Z_cone.position.set(0, 0, planeSize);
+  Z_cone.rotation.x = Math.PI/2;
+  scene.add(Z_cone);
+  
+  <!-- This is creating the plane that the graph is on. -->
+  const planeMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, wireframe: true, side: THREE.DoubleSide});
+  const planeGeometry = new THREE.PlaneGeometry(planeSize, planeSize, 10, 10);
+  const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+  scene.add(plane);
+
+  <!-- This is creating the length and width of the graph. -->
+  let length = 100;
+  let width = 100;
+
+  // creating the graph
+  <!-- This is creating the graph. -->
+  const graphGeometry = new THREE.PlaneGeometry(1000, 1000, length, width);
+  const graphTexture = new THREE.TextureLoader().load('rainbow.png');
+  const mathGraph = new THREE.MeshPhongMaterial({map: graphTexture, side: THREE.DoubleSide});
+
+  <!-- Creating an array of the vertices of the graph. -->
+  let verticesArray = graphGeometry.attributes.position.array;
+
+
+  <!-- This is the function that is creating the graph. -->
+  for (let i = 0; i < verticesArray.length; i += 3) {
+    let x = verticesArray[i] / (length/2);
+    let y = verticesArray[i+1] / (length/2);
+
+    let z = Math.pow(x, 2) - Math.pow(y, 2);
+
+    verticesArray[i+2] = 10 * z;
+  }
+
+  <!-- This is creating the graph. -->
+  const meshGraph = new THREE.Mesh(graphGeometry, mathGraph);
+  meshGraph.castShadow = true;
+  meshGraph.receiveShadow = true;
+  scene.add(meshGraph);
+
+  // ----------------------------------------------------------------------------------------
+  // END OF YOUR CUSTOM CODE FOR THE ASSIGNMENT
+  // The rendering functions that follow are standard and can be used for this assignment.
+  // You are welcome to customize them or create your own if you desire, however, you can
+  // simply use the code provided.
+
+
+  // Standard functions for rendering the scene.  Notice how we have the animate function
+  // which submits a call to requestAnimationFrame to call animate.   This creates a loop
+  // that will render the scene again whenever something within the scene changes.
+  function animate() {
+    requestAnimationFrame(animate);
+    render();
+  }
+
+  function render() {
+    cameraControls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+</script>
+</html>
